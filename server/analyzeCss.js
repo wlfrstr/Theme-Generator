@@ -10,7 +10,7 @@ import {
   inquiryThemeDark,
 } from './defaultThemes.js';
 
-const HEX = /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$/;
+const HEX = /^#?([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$/;
 const RGB = /^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)(?:\s*,\s*[\d.]+)?\s*\)$/;
 const PX = /^(\d+(?:\.\d+)?)px$/;
 const REM = /^(\d+(?:\.\d+)?)rem$/;
@@ -21,17 +21,30 @@ const NAMED_COLORS = {
   transparent: null,
 };
 
+/** Normalize any hex string to exactly 6 digits (#RRGGBB). Returns null if not a valid color. */
+function hexTo6(hex) {
+  if (!hex || typeof hex !== 'string') return null;
+  const s = hex.trim().replace(/^#/, '');
+  if (s.length === 6 && /^[0-9A-Fa-f]{6}$/.test(s)) return '#' + s;
+  if (s.length === 3 && /^[0-9A-Fa-f]{3}$/.test(s)) {
+    return '#' + s.split('').map((c) => c + c).join('');
+  }
+  if (s.length === 8 && /^[0-9A-Fa-f]{8}$/.test(s)) return '#' + s.slice(0, 6);
+  return null;
+}
+
 function normalizeColor(raw) {
   if (!raw || typeof raw !== 'string') return null;
   const s = raw.trim();
   let m = HEX.exec(s);
-  if (m) return s.startsWith('#') ? s : '#' + s;
+  if (m) return hexTo6('#' + m[1]);
   m = RGB.exec(s);
   if (m) {
     const r = parseInt(m[1], 10);
     const g = parseInt(m[2], 10);
     const b = parseInt(m[3], 10);
-    return '#' + [r, g, b].map((x) => x.toString(16).padStart(2, '0')).join('');
+    const hex = '#' + [r, g, b].map((x) => x.toString(16).padStart(2, '0')).join('');
+    return hexTo6(hex) || hex;
   }
   const lower = s.toLowerCase();
   if (NAMED_COLORS.hasOwnProperty(lower)) return NAMED_COLORS[lower];
@@ -209,7 +222,10 @@ function extractThemes(collected) {
   const borderRadius = median(radii) || 30;
   const inputBorderRadius = radii.length ? Math.min(...radii.filter((r) => r <= 8)) || 4 : 4;
 
-  const v = (hex) => ({ value: hex, unit: 'hex' });
+  const v = (hex) => {
+    const n = hexTo6(hex);
+    return n == null ? null : { value: n, unit: 'hex' };
+  };
   const p = (n) => ({ value: n, unit: 'px' });
   const pc = (n) => ({ value: n, unit: '%' });
 

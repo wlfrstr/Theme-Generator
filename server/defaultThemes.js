@@ -1,9 +1,23 @@
 /**
  * Default theme structures. Used as base and filled from CSS analysis.
+ * All hex colors are normalized to 6-digit (#RRGGBB).
  */
 
+/** Normalize to 6-digit hex; return null for invalid. */
+function hexTo6(hex) {
+  if (!hex || typeof hex !== 'string') return null;
+  const s = hex.trim().replace(/^#/, '');
+  if (s.length === 6 && /^[0-9A-Fa-f]{6}$/.test(s)) return '#' + s;
+  if (s.length === 3 && /^[0-9A-Fa-f]{3}$/.test(s)) {
+    return '#' + s.split('').map((c) => c + c).join('');
+  }
+  if (s.length === 8 && /^[0-9A-Fa-f]{8}$/.test(s)) return '#' + s.slice(0, 6);
+  return null;
+}
+
 function valueHex(hex) {
-  return { value: hex, unit: 'hex' };
+  const normalized = hexTo6(hex);
+  return { value: normalized != null ? normalized : hex, unit: 'hex' };
 }
 function valuePx(n) {
   return { value: n, unit: 'px' };
