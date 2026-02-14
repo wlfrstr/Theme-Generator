@@ -85,12 +85,156 @@
   margin: 0 0 1rem;
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 1rem;
+/* Theme set name */
+.theme-set-section {
+  margin-bottom: 1.5rem;
 }
 
+.theme-set-name-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.theme-set-name-input {
+  max-width: 320px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.9rem;
+}
+
+.theme-set-name-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+/* Primary ThemeSet card */
+.card-primary {
+  max-height: 70vh;
+}
+
+.card-title-primary {
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.copy-btn-primary {
+  padding: 0.4rem 0.75rem;
+  font-size: 0.8rem;
+}
+
+.json-primary {
+  font-size: 0.72rem;
+  padding: 1rem;
+}
+
+/* Individual themes: collapsible section */
+.individual-themes-details {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.individual-themes-summary {
+  padding: 0.65rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.individual-themes-summary::-webkit-details-marker {
+  display: none;
+}
+
+.individual-themes-summary:hover {
+  color: var(--text);
+}
+
+.individual-themes-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border-top: 1px solid var(--border);
+}
+
+/* Collapsible theme cards */
+.card-collapsible {
+  border: none;
+  border-radius: 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.card-collapsible:last-child {
+  border-bottom: none;
+}
+
+.card-header-collapsible {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  border-bottom: none;
+}
+
+.card-collapsible-trigger {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s;
+  border-radius: 4px;
+  min-width: 0;
+}
+
+.card-collapsible-trigger:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.card-collapsible-chevron {
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  width: 1rem;
+  flex-shrink: 0;
+}
+
+.card-collapsible-trigger h3 {
+  flex: 1;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin: 0;
+  pointer-events: none;
+}
+
+.card-header-collapsible .copy-btn {
+  flex-shrink: 0;
+}
+
+.json-collapsible {
+  margin: 0;
+  padding: 1rem;
+  max-height: 40vh;
+  font-size: 0.68rem;
+  border-top: 1px solid var(--border);
+}
+
+/* Shared card styles */
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -140,10 +284,4 @@
   line-height: 1.45;
   overflow: auto;
   color: var(--text-muted);
-}
-
-@media (min-width: 900px) {
-  .grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
 }

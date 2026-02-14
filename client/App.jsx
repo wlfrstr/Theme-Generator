@@ -1,13 +1,36 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import './App.css';
 
 const API = '/api';
+
+function buildThemeSet(themes, themeSetName) {
+  return {
+    ThemeSet: { name: themeSetName || 'Persona default theme' },
+    BaseTheme: [
+      { type: 'BaseTheme::Light', styles_json: themes.baseThemeLight },
+      { type: 'BaseTheme::Dark', styles_json: themes.baseThemeDark },
+    ],
+    InquiryTheme: [
+      { type: 'InquiryTheme::Light', styles_json: themes.inquiryThemeLight },
+      { type: 'InquiryTheme::Dark', styles_json: themes.inquiryThemeDark },
+    ],
+    ThemeSetThemeVariable: [],
+    ThemeVariables: [],
+    AllThemeVariables: [],
+  };
+}
 
 export default function App() {
   const [url, setUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [themes, setThemes] = useState(null);
+  const [themeSetName, setThemeSetName] = useState('Persona default theme');
+
+  const themeSet = useMemo(() => {
+    if (!themes) return null;
+    return buildThemeSet(themes, themeSetName);
+  }, [themes, themeSetName]);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -66,22 +89,40 @@ export default function App() {
 
       {themes && (
         <section className="output" aria-label="Generated themes">
-          <h2>Generated themes</h2>
-          <div className="grid">
-            <ThemeCard title="BaseTheme :: Light" json={themes.baseThemeLight} />
-            <ThemeCard title="BaseTheme :: Dark" json={themes.baseThemeDark} />
-            <ThemeCard title="InquiryTheme :: Light" json={themes.inquiryThemeLight} />
-            <ThemeCard title="InquiryTheme :: Dark" json={themes.inquiryThemeDark} />
+          {/* Primary: ThemeSet format */}
+          <div className="theme-set-section">
+            <label className="theme-set-name-label">
+              Theme set name
+              <input
+                type="text"
+                className="theme-set-name-input"
+                value={themeSetName}
+                onChange={(e) => setThemeSetName(e.target.value)}
+                placeholder="Persona default theme"
+              />
+            </label>
+            <ThemeSetCard themeSet={themeSet} />
           </div>
+
+          {/* Minimised individual themes */}
+          <details className="individual-themes-details">
+            <summary className="individual-themes-summary">Individual themes (expand to view or copy)</summary>
+            <div className="individual-themes-grid">
+              <CollapsibleThemeCard title="BaseTheme :: Light" json={themes.baseThemeLight} />
+              <CollapsibleThemeCard title="BaseTheme :: Dark" json={themes.baseThemeDark} />
+              <CollapsibleThemeCard title="InquiryTheme :: Light" json={themes.inquiryThemeLight} />
+              <CollapsibleThemeCard title="InquiryTheme :: Dark" json={themes.inquiryThemeDark} />
+            </div>
+          </details>
         </section>
       )}
     </div>
   );
 }
 
-function ThemeCard({ title, json }) {
+function ThemeSetCard({ themeSet }) {
   const [copied, setCopied] = useState(false);
-  const str = JSON.stringify(json, null, 2);
+  const str = themeSet ? JSON.stringify(themeSet, null, 4) : '';
 
   async function copy() {
     try {
@@ -94,14 +135,53 @@ function ThemeCard({ title, json }) {
   }
 
   return (
-    <div className="card">
+    <div className="card card-primary">
       <div className="card-header">
-        <h3>{title}</h3>
-        <button type="button" className="copy-btn" onClick={copy} aria-label="Copy JSON">
+        <h2 className="card-title-primary">ThemeSet (full output)</h2>
+        <button type="button" className="copy-btn copy-btn-primary" onClick={copy} aria-label="Copy ThemeSet JSON">
           {copied ? 'Copied' : 'Copy'}
         </button>
       </div>
-      <pre className="json">{str}</pre>
+      <pre className="json json-primary">{str}</pre>
+    </div>
+  );
+}
+
+function CollapsibleThemeCard({ title, json }) {
+  const [open, setOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const str = JSON.stringify(json, null, 2);
+
+  async function copy(e) {
+    e.stopPropagation();
+    try {
+      await navigator.clipboard.writeText(str);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  return (
+    <div className="card card-collapsible">
+      <div className="card-header card-header-collapsible">
+        <button
+          type="button"
+          className="card-collapsible-trigger"
+          onClick={() => setOpen((o) => !o)}
+          aria-expanded={open}
+        >
+          <span className="card-collapsible-chevron">{open ? '▼' : '▶'}</span>
+          <h3>{title}</h3>
+        </button>
+        <button type="button" className="copy-btn" onClick={copy} aria-label={`Copy ${title}`}>
+          {copied ? 'Copied' : 'Copy'}
+        </button>
+      </div>
+      {open && (
+        <pre className="json json-collapsible">{str}</pre>
+      )}
     </div>
   );
 }
