@@ -21,6 +21,89 @@ const NAMED_COLORS = {
   transparent: null,
 };
 
+/** Allowed font families for theme output. Only these may appear in generated JSON. */
+const ALLOWED_FONTS = [
+  'Arial',
+  'Avant Garde',
+  'Bookman',
+  'Courier',
+  'Courier New',
+  'Garamond',
+  'Helvetica',
+  'Palatino',
+  'system-ui',
+  'Times',
+  'Times New Roman',
+  'Anton',
+  'Archivo',
+  'Domine',
+  'Dosis',
+  'Droid Sans',
+  'IBM Plex Sans',
+  'Inter',
+  'Jost',
+  'Lato',
+  'Lora',
+  'Manrope',
+  'Montserrat',
+  'Noto Sans JP',
+  'Noto Sans TC',
+  'Nunito',
+  'Nunito Sans',
+  'Open Sans',
+  'Oswald',
+  'Outfit',
+  'PT Sans',
+  'Playfair Display',
+  'Poppins',
+  'Public Sans',
+  'Reddit Sans',
+  'Roboto',
+  'Rubik',
+  'Source Sans Pro',
+  'Source Serif Pro',
+  'Space Grotesk',
+  'Ubuntu',
+  'Work Sans',
+  'ABC Monument Grotesk',
+];
+
+const ALLOWED_FONTS_LOWER = new Set(ALLOWED_FONTS.map((f) => f.toLowerCase()));
+
+/** Map common CSS font names / variants to an allowed font. */
+const FONT_ALIASES = {
+  'helvetica neue': 'Helvetica',
+  'noto sans japanese': 'Noto Sans JP',
+  'noto sans jp': 'Noto Sans JP',
+  'noto sans traditional chinese': 'Noto Sans TC',
+  'ibm plex sans': 'IBM Plex Sans',
+  'source sans 3': 'Source Sans Pro',
+  'droid sans': 'Droid Sans',
+  'reddit sans': 'Reddit Sans',
+  'space grotesk': 'Space Grotesk',
+  'playfair display': 'Playfair Display',
+  'source serif 4': 'Source Serif Pro',
+  'pt sans': 'PT Sans',
+  'nunito sans': 'Nunito Sans',
+};
+
+/** Return an allowed font from a CSS font-family value, or default. */
+function normalizeFontFamily(raw) {
+  const defaultFont = 'ABC Monument Grotesk';
+  if (!raw || typeof raw !== 'string') return defaultFont;
+  const parts = raw.split(',').map((s) => s.trim().replace(/^["']|["']$/g, ''));
+  for (const part of parts) {
+    if (!part) continue;
+    const lower = part.toLowerCase();
+    if (ALLOWED_FONTS_LOWER.has(lower)) {
+      return ALLOWED_FONTS.find((f) => f.toLowerCase() === lower);
+    }
+    const alias = FONT_ALIASES[lower];
+    if (alias) return alias;
+  }
+  return defaultFont;
+}
+
 /** Normalize any hex string to exactly 6 digits (#RRGGBB). Returns null if not a valid color. */
 function hexTo6(hex) {
   if (!hex || typeof hex !== 'string') return null;
@@ -212,7 +295,7 @@ function extractThemes(collected) {
     textColors.filter((c) => !isDark(c)),
     '#E2E2E3'
   );
-  const fontFamily = mostCommon(fonts.family, 'ABC Monument Grotesk');
+  const fontFamily = normalizeFontFamily(mostCommon(fonts.family, 'ABC Monument Grotesk'));
   const fontSizeBody = median(fonts.size) || 18;
   const fontSizeSmall = fonts.size.length ? Math.min(...fonts.size) : 12;
   const fontSizeHeading = fonts.size.length ? Math.max(...fonts.size) : 28;
