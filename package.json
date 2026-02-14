@@ -1,0 +1,24 @@
+{
+  "name": "theme-generator",
+  "version": "1.0.0",
+  "description": "Analyze website CSS and output BaseTheme and InquiryTheme JSONs (Light/Dark)",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "node server/index.js",
+    "client": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "css": "^3.0.0",
+    "express": "^4.21.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.0",
+    "concurrently": "^8.2.2",
+    "vite": "^5.4.0"
+  }
+}
