@@ -121,28 +121,38 @@ export default function App() {
 }
 
 function ThemeSetCard({ themeSet }) {
+  const [open, setOpen] = useState(true);
   const [copied, setCopied] = useState(false);
   const str = themeSet ? JSON.stringify(themeSet, null, 4) : '';
 
-  async function copy() {
+  async function copy(e) {
+    e?.stopPropagation();
     try {
       await navigator.clipboard.writeText(str);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    } catch (e) {
+    } catch (err) {
       // ignore
     }
   }
 
   return (
     <div className="card card-primary">
-      <div className="card-header">
-        <h2 className="card-title-primary">ThemeSet (full output)</h2>
+      <div className="card-header card-header-primary">
+        <button
+          type="button"
+          className="card-collapsible-trigger card-primary-trigger"
+          onClick={() => setOpen((o) => !o)}
+          aria-expanded={open}
+        >
+          <span className="card-collapsible-chevron">{open ? '▼' : '▶'}</span>
+          <h2 className="card-title-primary">ThemeSet (full output)</h2>
+        </button>
         <button type="button" className="copy-btn copy-btn-primary" onClick={copy} aria-label="Copy ThemeSet JSON">
           {copied ? 'Copied' : 'Copy'}
         </button>
       </div>
-      <pre className="json json-primary">{str}</pre>
+      {open && <pre className="json json-primary">{str}</pre>}
     </div>
   );
 }
